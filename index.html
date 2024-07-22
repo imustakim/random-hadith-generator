@@ -6,23 +6,22 @@
     <title>Random Hadith Generator</title>
     <link href="https://cdn.tailwindcss.com" rel="stylesheet">
     <link href="https://unpkg.com/flowbite@1.5.2/dist/flowbite.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-gray-100 transition-colors duration-500 h-screen flex flex-col">
+<body class="transition-colors duration-500 h-screen flex flex-col">
     <div class="flex-grow container mx-auto p-6 flex flex-col items-center justify-center overflow-auto">
-        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mb-6">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mb-6 flex-grow">
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-4xl font-extrabold text-gray-900">Random Hadith Generator</h1>
             </div>
-            <div id="hadith-container" class="text-xl italic font-semibold text-gray-900 mb-4 p-4 border border-gray-300 rounded-lg shadow-inner overflow-auto max-h-screen">
+            <div id="hadith-container" class="text-xl italic font-semibold text-gray-900 mb-4 p-4 border border-gray-300 rounded-lg shadow-inner overflow-auto max-h-full">
                 <p id="hadith-text">Click the button to generate a random hadith.</p>
             </div>
             <div id="details" class="text-gray-700 mb-4"></div>
             <button onclick="fetchRandomHadith()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Generate Random Hadith</button>
         </div>
     </div>
-    <footer class="bg-gray-200 p-4 text-center text-gray-600">
+    <footer id="footer" class="p-4 text-center text-gray-600 w-full">
         <p>&copy; 2024 Random Hadith Generator</p>
     </footer>
     <script src="https://unpkg.com/flowbite@1.5.2/dist/flowbite.js"></script>

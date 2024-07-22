@@ -55,6 +55,24 @@ function updateHTML(hadith, section, bookName) {
     `;
 }
 
+// Function to generate a random color
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+// Function to apply a random gradient to the background
+function applyRandomGradient() {
+    const color1 = getRandomColor();
+    const color2 = getRandomColor();
+    const gradient = `linear-gradient(to right, ${color1}, ${color2})`;
+    document.body.style.background = gradient;
+}
+
 // Main function to fetch and display a random Hadith
 async function fetchRandomHadith() {
     try {
@@ -80,5 +98,6 @@ async function fetchRandomHadith() {
     }
 }
 
-// Initial call to fetch and display a random Hadith
+// Initial call to apply random gradient and fetch and display a random Hadith
+applyRandomGradient();
 fetchRandomHadith();
