@@ -59,23 +59,15 @@ function updateHTML(hadith, section, bookName) {
 async function fetchRandomHadith() {
     try {
         const edition = getRandomElement(allowedEditions);
-        console.log(`Selected Edition: ${edition}`); // Debugging line
-
         const metadata = await fetchMetadata(edition);
-        console.log('Metadata:', metadata); // Debugging line
-
         const sections = getSectionsFromMetadata(metadata);
-        console.log('Sections:', sections); // Debugging line
 
         if (sections.length === 0) throw new Error('No sections found');
-
+        
         const randomSection = getRandomElement(sections);
-        console.log(`Selected Section: ${randomSection.number} - ${randomSection.title}`); // Debugging line
-
         const sectionData = await fetchSectionData(edition, randomSection.number);
-        console.log('Section Data:', sectionData); // Debugging line
-
         const hadiths = sectionData.hadiths || [];
+        
         if (hadiths.length === 0) throw new Error('No Hadiths found in the section');
 
         const randomHadith = getRandomElement(hadiths);
