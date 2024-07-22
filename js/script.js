@@ -1,112 +1,92 @@
-const editions = [
+// List of allowed English editions
+const allowedEditions = [
     'eng-bukhari',
     'eng-muslim',
     'eng-nasai',
     'eng-abudawud',
     'eng-tirmidhi',
     'eng-ibnmajah',
-    'eng-malik',
-    'eng-dehlawi',
-    'eng-nawawi',
-    'eng-qudsi'
+    'eng-malik'
 ];
 
-async function fetchAPI(endpoint) {
-    const maxRetries = 3;
-    const urlMin = `https://${config.apiHost}/${endpoint}.min.json`;
-    const urlFull = `https://${config.apiHost}/${endpoint}.json`;
+// Function to pick a random element from an array
+function getRandomElement(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
 
-    let attempt = 0;
-
-    while (attempt < maxRetries) {
-        try {
-            const response = await fetch(urlMin);
-            if (response.ok) {
-                return await response.json();
-            }
-            throw new Error(`Minified JSON fetch failed with status: ${response.status}`);
-        } catch (error) {
-            console.error(`Error fetching ${urlMin}:`, error);
-            try {
-                const response = await fetch(urlFull);
-                if (response.ok) {
-                    return await response.json();
-                }
-                throw new Error(`Full JSON fetch failed with status: ${response.status}`);
-            } catch (fallbackError) {
-                console.error(`Error fetching ${urlFull}:`, fallbackError);
-                attempt++;
-                if (attempt >= maxRetries) {
-                    return { error: 'An error occurred. Please try again later.' };
-                }
-            }
-        }
+// Function to fetch metadata
+async function fetchMetadata(edition) {
+    try {
+        const response = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${edition}.json`);
+        if (!response.ok) throw new Error('Failed to load volume data');
+        return await response.json();
+    } catch (error) {
+        throw new Error('Failed to fetch metadata: ' + error.message);
     }
 }
 
-async function fetchRandomHadith() {
-    // Randomly select an edition
-    const randomEdition = editions[Math.floor(Math.random() * editions.length)];
-    console.log(`Selected Edition: ${randomEdition}`);  // Debugging line to see which edition was selected
-
-    // Fetch volume information
-    const volumeEndpoint = `editions/${randomEdition}`;
-    const volumeData = await fetchAPI(volumeEndpoint);
-
-    if (volumeData.error || !volumeData.sections) {
-        document.getElementById('hadith').innerText = volumeData.error || 'Failed to load volume data.';
-        document.getElementById('details').innerHTML = '';
-        return;
+// Function to get sections from metadata
+function getSectionsFromMetadata(metadata) {
+    if (!metadata || !metadata.metadata || !metadata.metadata.sections) {
+        throw new Error('No valid sections found');
     }
+    return Object.entries(metadata.metadata.sections).map(([number, title]) => ({ number, title }));
+}
 
-    const sections = Object.keys(volumeData.sections).filter(key => !isNaN(key));
-    if (sections.length === 0) {
-        document.getElementById('hadith').innerText = 'No sections available.';
-        document.getElementById('details').innerHTML = '';
-        return;
+// Function to fetch section data
+async function fetchSectionData(edition, sectionNumber) {
+    try {
+        const response = await fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${edition}/sections/${sectionNumber}.json`);
+        if (!response.ok) throw new Error('Failed to load section data');
+        return await response.json();
+    } catch (error) {
+        throw new Error('Failed to fetch section data: ' + error.message);
     }
+}
 
-    const randomSectionKey = sections[Math.floor(Math.random() * sections.length)];
-
-    // Get section data
-    const sectionDetails = volumeData.section_details[randomSectionKey];
-    const sectionEndpoint = `editions/${randomEdition}/sections/${randomSectionKey}`;
-    const sectionData = await fetchAPI(sectionEndpoint);
-
-    if (sectionData.error || !sectionDetails) {
-        document.getElementById('hadith').innerText = sectionData.error || 'Failed to load section data.';
-        document.getElementById('details').innerHTML = '';
-        return;
-    }
-
-    const hadithNumbers = Array.from({length: sectionDetails.hadithnumber_last - sectionDetails.hadithnumber_first + 1}, (_, i) => i + sectionDetails.hadithnumber_first);
-    if (hadithNumbers.length === 0) {
-        document.getElementById('hadith').innerText = 'No Hadith numbers available.';
-        document.getElementById('details').innerHTML = '';
-        return;
-    }
-
-    const randomHadithNumber = hadithNumbers[Math.floor(Math.random() * hadithNumbers.length)];
-    const hadithEndpoint = `editions/${randomEdition}/${randomHadithNumber}`;
-    const hadithData = await fetchAPI(hadithEndpoint);
-
-    if (hadithData.error) {
-        document.getElementById('hadith').innerText = hadithData.error;
-        document.getElementById('details').innerHTML = '';
-        return;
-    }
-
-    document.getElementById('hadith').innerHTML = `
-        <blockquote class="text-xl italic font-semibold text-gray-900 dark:text-white">
-            <svg class="w-8 h-8 text-gray-400 dark:text-gray-600 mb-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 14">
-                <path d="M6 0H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3H2a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Zm10 0h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3h-1a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Z"/>
-            </svg>
-            <p>${hadithData.english || 'Hadith text not available'}</p>
-        </blockquote>
-    `;
-
+// Function to update the HTML content
+function updateHTML(hadith, section, bookName) {
+    document.getElementById('hadith-text').innerText = hadith.text || 'Hadith text not available';
     document.getElementById('details').innerHTML = `
-        <p><strong>Section:</strong> ${volumeData.sections[randomSectionKey]}</p>
-        <p><strong>Hadith Number:</strong> ${randomHadithNumber}</p>
+        <p>Book Name: ${bookName}</p>
+        <p>Section Number: ${section.number}</p>
+        <p>Section Title: ${section.title}</p>
+        <p>Hadith Number: ${hadith.hadithnumber || 'N/A'}</p>
     `;
 }
+
+// Main function to fetch and display a random Hadith
+async function fetchRandomHadith() {
+    try {
+        const edition = getRandomElement(allowedEditions);
+        console.log(`Selected Edition: ${edition}`); // Debugging line
+
+        const metadata = await fetchMetadata(edition);
+        console.log('Metadata:', metadata); // Debugging line
+
+        const sections = getSectionsFromMetadata(metadata);
+        console.log('Sections:', sections); // Debugging line
+
+        if (sections.length === 0) throw new Error('No sections found');
+
+        const randomSection = getRandomElement(sections);
+        console.log(`Selected Section: ${randomSection.number} - ${randomSection.title}`); // Debugging line
+
+        const sectionData = await fetchSectionData(edition, randomSection.number);
+        console.log('Section Data:', sectionData); // Debugging line
+
+        const hadiths = sectionData.hadiths || [];
+        if (hadiths.length === 0) throw new Error('No Hadiths found in the section');
+
+        const randomHadith = getRandomElement(hadiths);
+        updateHTML(randomHadith, randomSection, metadata.metadata.name);
+
+    } catch (error) {
+        console.error('Failed to load Hadith data:', error);
+        document.getElementById('hadith-text').innerText = 'Failed to load Hadith data. Please try again later.';
+        document.getElementById('details').innerHTML = '';
+    }
+}
+
+// Initial call to fetch and display a random Hadith
+fetchRandomHadith();
