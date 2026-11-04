@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolveE2EPort } from "./tests/e2e/port";
 
-const port = Number(process.env.E2E_PORT ?? 3100);
+const port = resolveE2EPort(process.env.E2E_PORT);
 const baseURL = `http://localhost:${port}`;
 
 export default defineConfig({
