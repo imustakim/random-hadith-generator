@@ -1,7 +1,10 @@
 # Audit of the old Random Hadith Generator
 
-Written before any old file is touched. Source: the old files and the explorer notes. Nothing here
-comes from a live call to the provider.
+Written before any old file is touched. Nothing here comes from a live call to the provider.
+
+Audited at commit `137d4f1`. The old files are deleted later in the rebuild, so every file,
+function and property named below refers to that commit. Read one with
+`git show 137d4f1:js/script.js`.
 
 ## Old files
 
@@ -31,12 +34,14 @@ Allowed editions (all English): `eng-bukhari`, `eng-muslim`, `eng-nasai`, `eng-a
 2. Fetch the edition and pick a random section from `metadata.sections`.
 3. Fetch that section and pick a random item from `hadiths`.
 
-Every click repeats all three steps with no caching. Choices are uniform at each level, so Hadiths
+`fetchRandomHadith()` runs once on page load and again on every click, repeating all three steps
+with no caching. Choices are uniform at each level, so Hadiths
 in small sections are over-represented.
 
 ## What the page shows
 
-- The Hadith `text`, in the `#hadith-text` paragraph; the first paint says "Click the button to get a random hadith."
+- The Hadith `text`, in the `#hadith-text` paragraph. The markup holds the placeholder "Click the
+  button to get a random hadith.", which shows only until the load-time fetch finishes.
 - Under it: book name, section number, section title and Hadith number.
 - Fallbacks: `Hadith text not available` (no `text`), `N/A` (no `hadithnumber`), and `Failed to load Hadith data. Please try again later.` on any failure (details are cleared).
 - A random two-colour gradient on the page background at load.
@@ -56,7 +61,9 @@ component is used by the markup. Deployed on GitHub Pages; the README links the 
 
 ## Do not copy
 
-- Provider text and numbers written with `innerHTML` (`updateHTML`); render as text.
+- Book name, section number, section title and Hadith number interpolated into `innerHTML` in
+  `updateHTML`. The Hadith `text` itself is set with `innerText`, which is safe; render every
+  provider field as text.
 - The unused `config.apiHost`, which also has no protocol; the base URL becomes an environment variable (ADR 0002).
 - `fetch` without timeouts or retry rules, and unvalidated responses.
 - The random background gradient.
