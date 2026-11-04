@@ -1,22 +1,32 @@
-# Random Hadith Generator
+# Athar (أثر)
 
-The Random Hadith Generator is a web application that fetches and displays a random Hadith from various Hadith collections. It uses the [Hadith API](https://github.com/fawazahmed0/hadith-api) to retrieve Hadiths and displays them on a user-friendly interface.
+Discover. Reflect. Remember.
 
-## Features
+Athar is a Hadith reading platform, rebuilt from the old Random Hadith Generator on Next.js, TypeScript and Tailwind CSS. It is under construction: today it serves a minimal home page.
 
-- Fetches random Hadiths from multiple English editions.
-- Displays the Hadith text along with book number, section number, section title, and Hadith number.
-- Responsive design using Tailwind CSS.
+## Prerequisites
 
-## Live Demo
+- Node.js 24 (see `.nvmrc`)
+- npm
 
-You can view the live demo of the application [here](https://imustakim.github.io/random-hadith-generator/).
+## Getting started
 
+```bash
+npm ci
+npm run dev
+```
 
-## Contributing
+The app runs at http://localhost:3000. No environment file is needed yet.
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes. 
+## Checks
 
+| Script                 | What it does                                   |
+| ---------------------- | ---------------------------------------------- |
+| `npm run format:check` | Checks formatting with Prettier (never writes) |
+| `npm run lint`         | Lints with ESLint and the Next.js rules        |
+| `npm run typecheck`    | Type-checks with `tsc --noEmit`                |
+| `npm run test`         | Runs the Vitest unit tests in `tests/unit`     |
+| `npm run build`        | Builds the production app                      |
 
 ## License
 
@@ -25,10 +35,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Acknowledgements
 
 - [Hadith API](https://github.com/fawazahmed0/hadith-api)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Font Awesome](https://fontawesome.com/)
-- [Flowbite](https://flowbite.com/)
-
-## Contact
-
-If you have any questions or feedback, feel free to reach out.
