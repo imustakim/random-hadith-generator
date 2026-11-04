@@ -5,22 +5,22 @@ comes from a live call to the provider.
 
 ## Old files
 
-| File | Role |
-|------|------|
-| `index.html` | The single page: nav with "Daily Hadith", `#hadith-text`, `#details`, and a "Read Another!" button wired by `onclick="fetchRandomHadith()"`. |
-| `js/script.js` | All behaviour, as globals: edition list, fetch, pick, render, random gradient. |
-| `js/config.js` | `config.apiHost`, never read by `script.js`. |
-| `css/styles.css` | One `body` font-family rule. |
-| `README.md`, `LICENSE` | Old description with a GitHub Pages demo link; MIT license. |
+| File                   | Role                                                                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`           | The single page: nav with "Daily Hadith", `#hadith-text`, `#details`, and a "Read Another!" button wired by `onclick="fetchRandomHadith()"`. |
+| `js/script.js`         | All behaviour, as globals: edition list, fetch, pick, render, random gradient.                                                               |
+| `js/config.js`         | `config.apiHost`, never read by `script.js`.                                                                                                 |
+| `css/styles.css`       | One `body` font-family rule.                                                                                                                 |
+| `README.md`, `LICENSE` | Old description with a GitHub Pages demo link; MIT license.                                                                                  |
 
 ## Provider and endpoints
 
 The fawazahmed0 Hadith API, served from jsDelivr at `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1`.
 
-| Call | URL pattern | Fields the old code reads |
-|------|-------------|---------------------------|
-| Edition | `GET {base}/editions/{edition}.json` | `metadata.name` (book name) and `metadata.sections`, an object of section number to title. |
-| Section | `GET {base}/editions/{edition}/sections/{n}.json` | `hadiths[]`; per item `text` and `hadithnumber`. |
+| Call    | URL pattern                                       | Fields the old code reads                                                                  |
+| ------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Edition | `GET {base}/editions/{edition}.json`              | `metadata.name` (book name) and `metadata.sections`, an object of section number to title. |
+| Section | `GET {base}/editions/{edition}/sections/{n}.json` | `hadiths[]`; per item `text` and `hadithnumber`.                                           |
 
 Allowed editions (all English): `eng-bukhari`, `eng-muslim`, `eng-nasai`, `eng-abudawud`,
 `eng-tirmidhi`, `eng-ibnmajah`, `eng-malik`.
