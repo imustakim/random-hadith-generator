@@ -50,7 +50,9 @@ npx playwright install chromium   # once per machine
 npm run test:e2e
 ```
 
-The suite builds and starts the app on port 3100. Outside CI it reuses a server already running there. The HTML report is written to `playwright-report`.
+The suite builds and starts the app on port 3100. Outside CI it reuses a server already running there, so a server left over from another worktree's build can be tested by mistake. Set `E2E_PORT` to use a different port, for example `E2E_PORT=3101 npm run test:e2e`. The HTML report is written to `playwright-report`.
+
+Import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`. Its fixture fails any test that logs a console error or throws an uncaught page error, including one that arrives after the last assertion.
 
 ## License
 
