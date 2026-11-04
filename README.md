@@ -12,6 +12,7 @@ Repository: [github.com/imustakim/athar](https://github.com/imustakim/athar)
 
 - [Next.js](https://nextjs.org) App Router with TypeScript in strict mode
 - [Tailwind CSS](https://tailwindcss.com) v4
+- [Supabase](https://supabase.com) (`@supabase/supabase-js` and `@supabase/ssr`), run locally with the Supabase CLI
 - [Vitest](https://vitest.dev) for unit tests
 - ESLint and Prettier for code quality
 
@@ -34,6 +35,26 @@ The app runs at http://localhost:3000.
 ## Environment
 
 To configure the app, copy `.env.example` to `.env.local` and fill in what you need. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are public: they are inlined into the browser bundle, so never put a secret in them. `HADITH_API_BASE_URL` is server-only and defaults to the jsDelivr Hadith API. `NEXT_PUBLIC_*` values are baked in at build time, so after changing one in `.env.local` rebuild before `npm start` (and restart `npm run dev`). Empty values count as unset, and the app and every check script run without any env file. A malformed value makes the server log an error naming the variable and exit at startup; a missing required value fails when it is first used.
+
+## Local Supabase
+
+Local Supabase needs [Docker](https://docs.docker.com/get-docker/) running. The Supabase CLI is a dev dependency, so run it through `npx`. The project lives in `supabase/` (config, an empty `migrations/` folder and an empty `seed.sql`).
+
+```bash
+npx supabase start   # start the local stack (first run pulls images)
+npx supabase status  # print the URL and keys
+npx supabase stop    # stop the stack
+npx supabase db reset  # recreate the database from migrations and seed.sql
+```
+
+Copy these `npx supabase status` values into `.env.local`, then restart `npm run dev`:
+
+| `supabase status` value                | `.env.local` variable                  |
+| -------------------------------------- | -------------------------------------- |
+| Project URL (`API_URL` in JSON output) | `NEXT_PUBLIC_SUPABASE_URL`             |
+| Publishable key (`PUBLISHABLE_KEY`)    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
+
+Use only these two. Never copy the secret key or the service role key anywhere: Athar declares no variable for them.
 
 ## Checks
 
