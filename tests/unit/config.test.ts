@@ -116,14 +116,14 @@ describe("parsePublicConfig", () => {
       }),
     );
     expect(error.message).toBe(
-      "Invalid environment configuration: NEXT_PUBLIC_SUPABASE_URL is malformed (expected an http(s) URL). See .env.example.",
+      "Invalid environment configuration: NEXT_PUBLIC_SUPABASE_URL is malformed (expected an https URL without credentials, query or fragment; http only for localhost). See .env.example.",
     );
   });
 
   it("tells the developer what a valid value looks like and where to look", () => {
     const error = configError(() => parsePublicConfig({}));
-    expect(error.message).toContain("expected an http(s) URL");
-    expect(error.message).toContain("expected a non-empty key");
+    expect(error.message).toContain("expected an https URL");
+    expect(error.message).toContain("expected a non-empty publishable key");
     expect(error.message).toContain(".env.example");
   });
 
@@ -138,6 +138,103 @@ describe("parsePublicConfig", () => {
     expect(error.message).toContain(
       "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing",
     );
+  });
+});
+
+describe("publishable key safety", () => {
+  const url = "https://abc.supabase.test";
+  const jwt = (payload: string) =>
+    `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${payload}.c2lnbmF0dXJl`;
+  const SERVICE_ROLE_PAYLOAD = "eyJyb2xlIjoic2VydmljZV9yb2xlIn0"; // {"role":"service_role"}
+  const ANON_PAYLOAD = "eyJyb2xlIjoiYW5vbiJ9"; // {"role":"anon"}
+
+  it.each([
+    ["an sb_secret_ key", "sb_secret_s3cretvalue"],
+    ["a service-role JWT", jwt(SERVICE_ROLE_PAYLOAD)],
+  ])("rejects %s without echoing it", (_label, key) => {
+    const error = configError(() =>
+      parsePublicConfig({
+        NEXT_PUBLIC_SUPABASE_URL: url,
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key,
+      }),
+    );
+    expect(error.message).toContain(
+      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is malformed",
+    );
+    expect(error.message).not.toContain(key);
+    expect(error.message).not.toContain("s3cret");
+  });
+
+  it.each([
+    ["a publishable key", "sb_publishable_abc"],
+    ["a legacy anon JWT", jwt(ANON_PAYLOAD)],
+  ])("accepts %s", (_label, key) => {
+    expect(
+      parsePublicConfig({
+        NEXT_PUBLIC_SUPABASE_URL: url,
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key,
+      }).supabasePublishableKey,
+    ).toBe(key);
+  });
+
+  it("rejects a service-role key at startup validation too", () => {
+    const error = configError(() =>
+      validateSetValues({
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_secret_s3cretvalue",
+      }),
+    );
+    expect(error.message).toContain("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+  });
+});
+
+describe("URL strictness", () => {
+  const withSupabaseUrl = (value: string) => () =>
+    parsePublicConfig({
+      NEXT_PUBLIC_SUPABASE_URL: value,
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_abc",
+    });
+  const withHadithUrl = (value: string) => () =>
+    parseServerConfig({ HADITH_API_BASE_URL: value });
+
+  it.each([
+    "http://user:pw-s3cret@abc.supabase.test",
+    "https://abc.supabase.test?key=s3cret",
+    "https://abc.supabase.test#s3cret",
+    "http://abc.supabase.test",
+  ])("rejects the Supabase URL %s without echoing it", (value) => {
+    const error = configError(withSupabaseUrl(value));
+    expect(error.message).toContain("NEXT_PUBLIC_SUPABASE_URL is malformed");
+    expect(error.message).not.toContain("s3cret");
+    expect(error.message).not.toContain(value);
+  });
+
+  it.each([
+    "http://user:pw-s3cret@hadith.test/api",
+    "https://hadith.test/api?token=s3cret",
+    "https://hadith.test/api#s3cret",
+    "http://hadith.test/api",
+  ])("rejects the Hadith API base URL %s", (value) => {
+    const error = configError(withHadithUrl(value));
+    expect(error.message).toContain("HADITH_API_BASE_URL is malformed");
+    expect(error.message).not.toContain("s3cret");
+  });
+
+  it.each([
+    "http://127.0.0.1:54321",
+    "http://localhost:54321",
+    "http://[::1]:54321",
+  ])("allows plain http for the loopback Supabase URL %s", (value) => {
+    expect(withSupabaseUrl(value)().supabaseUrl).toBe(value);
+  });
+
+  it("allows plain http for a loopback Hadith API base URL", () => {
+    expect(withHadithUrl("http://localhost:4010/api")()).toEqual({
+      hadithApiBaseUrl: "http://localhost:4010/api",
+    });
+  });
+
+  it("does not treat a look-alike host as loopback", () => {
+    configError(withSupabaseUrl("http://localhost.evil.test"));
   });
 });
 
