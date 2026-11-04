@@ -1,0 +1,12 @@
+package-lock.json
+node_modules
+.next
+out
+build
+coverage
+next-env.d.ts
+*.tsbuildinfo
+playwright-report
+test-results
+supabase/.temp
+supabase/.branches
