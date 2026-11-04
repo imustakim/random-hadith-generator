@@ -37,13 +37,15 @@ To configure the app, copy `.env.example` to `.env.local` and fill in what you n
 
 ## Checks
 
-| Script                 | What it does                                   |
-| ---------------------- | ---------------------------------------------- |
-| `npm run format:check` | Checks formatting with Prettier (never writes) |
-| `npm run lint`         | Lints with ESLint and the Next.js rules        |
-| `npm run typecheck`    | Type-checks with `tsc --noEmit`                |
-| `npm run test`         | Runs the Vitest unit tests in `tests/unit`     |
-| `npm run build`        | Builds the production app                      |
+| Script                 | What it does                                    |
+| ---------------------- | ----------------------------------------------- |
+| `npm run format`       | Formats the whole project with Prettier         |
+| `npm run format:check` | Checks formatting with Prettier (never writes)  |
+| `npm run lint`         | Lints with ESLint and the Next.js rules         |
+| `npm run typecheck`    | Type-checks with `tsc --noEmit`                 |
+| `npm run test`         | Runs the Vitest unit tests in `tests/unit`      |
+| `npm run build`        | Builds the production app                       |
+| `npm run start`        | Serves the production build (run `build` first) |
 
 ## End-to-end tests
 
