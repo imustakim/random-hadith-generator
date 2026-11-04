@@ -20,7 +20,7 @@ The app runs at http://localhost:3000.
 
 ## Environment
 
-To configure the app, copy `.env.example` to `.env.local` and fill in what you need. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are public: they are inlined into the browser bundle, so never put a secret in them. `HADITH_API_BASE_URL` is server-only and defaults to the jsDelivr Hadith API. Empty values count as unset, and the app and every check script run without any env file. A malformed value stops the server at startup with an error naming the variable; a missing required value fails when it is first used.
+To configure the app, copy `.env.example` to `.env.local` and fill in what you need. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are public: they are inlined into the browser bundle, so never put a secret in them. `HADITH_API_BASE_URL` is server-only and defaults to the jsDelivr Hadith API. `NEXT_PUBLIC_*` values are baked in at build time, so after changing one in `.env.local` rebuild before `npm start` (and restart `npm run dev`). Empty values count as unset, and the app and every check script run without any env file. A malformed value makes the server log an error naming the variable and exit at startup; a missing required value fails when it is first used.
 
 ## Checks
 

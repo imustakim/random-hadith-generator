@@ -108,14 +108,23 @@ describe("parsePublicConfig", () => {
     expect(error.message).not.toContain("oops-s3cret");
   });
 
-  it("never echoes the key in any error", () => {
+  it("builds the whole error from names and hints, never from values", () => {
     const error = configError(() =>
       parsePublicConfig({
-        NEXT_PUBLIC_SUPABASE_URL: "oops",
+        NEXT_PUBLIC_SUPABASE_URL: "oops-s3cret",
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_leakme",
       }),
     );
-    expect(error.message).not.toContain("sb_publishable_leakme");
+    expect(error.message).toBe(
+      "Invalid environment configuration: NEXT_PUBLIC_SUPABASE_URL is malformed (expected an http(s) URL). See .env.example.",
+    );
+  });
+
+  it("tells the developer what a valid value looks like and where to look", () => {
+    const error = configError(() => parsePublicConfig({}));
+    expect(error.message).toContain("expected an http(s) URL");
+    expect(error.message).toContain("expected a non-empty key");
+    expect(error.message).toContain(".env.example");
   });
 
   it.each(["", "  \t"])("reports %j as missing, not malformed", (blank) => {
