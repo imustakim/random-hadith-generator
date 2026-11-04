@@ -33,13 +33,15 @@ The app runs at http://localhost:3000. No environment file is needed yet.
 
 ## Checks
 
-| Script                 | What it does                                   |
-| ---------------------- | ---------------------------------------------- |
-| `npm run format:check` | Checks formatting with Prettier (never writes) |
-| `npm run lint`         | Lints with ESLint and the Next.js rules        |
-| `npm run typecheck`    | Type-checks with `tsc --noEmit`                |
-| `npm run test`         | Runs the Vitest unit tests in `tests/unit`     |
-| `npm run build`        | Builds the production app                      |
+| Script                 | What it does                                    |
+| ---------------------- | ----------------------------------------------- |
+| `npm run format`       | Formats the whole project with Prettier         |
+| `npm run format:check` | Checks formatting with Prettier (never writes)  |
+| `npm run lint`         | Lints with ESLint and the Next.js rules         |
+| `npm run typecheck`    | Type-checks with `tsc --noEmit`                 |
+| `npm run test`         | Runs the Vitest unit tests in `tests/unit`      |
+| `npm run build`        | Builds the production app                       |
+| `npm run start`        | Serves the production build (run `build` first) |
 
 ## License
 
