@@ -1,0 +1,25 @@
+# dependencies
+node_modules
+
+# Next.js
+.next
+out
+next-env.d.ts
+
+# TypeScript
+*.tsbuildinfo
+
+# environment files (the example file stays tracked)
+.env*
+!.env.example
+
+# test and report output
+coverage
+playwright-report
+test-results
+
+# Supabase CLI temporary folders
+supabase/.temp
+supabase/.branches
+
+.DS_Store

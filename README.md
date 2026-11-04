@@ -1,34 +1,50 @@
-# Random Hadith Generator
+# Athar (أثر)
 
-The Random Hadith Generator is a web application that fetches and displays a random Hadith from various Hadith collections. It uses the [Hadith API](https://github.com/fawazahmed0/hadith-api) to retrieve Hadiths and displays them on a user-friendly interface.
+Discover. Reflect. Remember.
 
-## Features
+Athar is a calm, accessible place to discover, read and share authentic Hadiths. It replaces the old Random Hadith Generator, a static site that was hosted on GitHub Pages, with a Next.js application.
 
-- Fetches random Hadiths from multiple English editions.
-- Displays the Hadith text along with book number, section number, section title, and Hadith number.
-- Responsive design using Tailwind CSS.
+Athar is under construction. Today it serves a minimal home page; Hadith reading, collections, search and accounts follow.
 
-## Live Demo
+Repository: [github.com/imustakim/athar](https://github.com/imustakim/athar)
 
-You can view the live demo of the application [here](https://imustakim.github.io/random-hadith-generator/).
+## Tech stack
 
+- [Next.js](https://nextjs.org) App Router with TypeScript in strict mode
+- [Tailwind CSS](https://tailwindcss.com) v4
+- [Vitest](https://vitest.dev) for unit tests
+- ESLint and Prettier for code quality
 
-## Contributing
+## Prerequisites
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes. 
+- Node.js 24 (see `.nvmrc`)
+- npm
 
+## Getting started
+
+```bash
+git clone https://github.com/imustakim/athar.git
+cd athar
+npm ci
+npm run dev
+```
+
+The app runs at http://localhost:3000. No environment file is needed yet.
+
+## Checks
+
+| Script                 | What it does                                   |
+| ---------------------- | ---------------------------------------------- |
+| `npm run format:check` | Checks formatting with Prettier (never writes) |
+| `npm run lint`         | Lints with ESLint and the Next.js rules        |
+| `npm run typecheck`    | Type-checks with `tsc --noEmit`                |
+| `npm run test`         | Runs the Vitest unit tests in `tests/unit`     |
+| `npm run build`        | Builds the production app                      |
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## Acknowledgements
+## Data source
 
-- [Hadith API](https://github.com/fawazahmed0/hadith-api)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Font Awesome](https://fontawesome.com/)
-- [Flowbite](https://flowbite.com/)
-
-## Contact
-
-If you have any questions or feedback, feel free to reach out.
+Hadith texts come from the open [Hadith API](https://github.com/fawazahmed0/hadith-api) by fawazahmed0, served through jsDelivr. Athar shows only authentic Hadiths from real sources, always with their reference and source attribution.
