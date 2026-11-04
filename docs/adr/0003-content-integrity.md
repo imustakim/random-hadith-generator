@@ -1,0 +1,3 @@
+# Content integrity over completeness
+
+Athar shows religious content, so accuracy outranks features: it never generates or alters Hadiths, never fabricates references, never invents authenticity grades, never misattributes narrations, and always keeps source attribution. Missing metadata is shown as unavailable rather than filled in, Arabic text is always distinguished from translations, editorial topic categorization is labelled as editorial, search never claims coverage the source does not index, AI-generated interpretation is never presented as scholarly opinion, and a feature the data sources cannot support is not built.
