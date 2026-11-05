@@ -6,7 +6,7 @@ const portSchema = z
   .string()
   .regex(/^\d+$/)
   .transform(Number)
-  .pipe(z.number().int().min(1).max(65535));
+  .pipe(z.number().min(1).max(65535));
 
 /** Reads the `E2E_PORT` override: unset or blank means the default, anything else must be a valid port. */
 export function resolveE2EPort(raw: string | undefined): number {

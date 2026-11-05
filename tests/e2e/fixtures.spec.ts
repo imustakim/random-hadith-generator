@@ -1,17 +1,20 @@
 import {
   assertNoBrowserErrors,
   expect,
-  test as base,
+  test,
   type BrowserErrorCheck,
 } from "./fixtures";
 
 // Self-test of the error-collecting fixture. Each "catches" test replaces the
 // fixture's final check with one that requires the real check to reject with a
-// given message, and fails if the fixture never ran it. A test therefore goes
-// red only if the fixture misses the error, never because something else broke.
+// given message, and fails if the fixture never ran it. A "catches" test thus
+// passes only when the fixture's own check rejects with that message, so an
+// unrelated failure cannot turn it green. The message match is a substring, so
+// extra errors collected alongside the expected one would not fail it.
+// One coarse spec runs the unmodified fixture, to cover its default wiring.
 
 function expectingFailure(message: string) {
-  return base.extend({
+  return test.extend({
     browserErrorCheck: [
       async ({}, use) => {
         let called = false;
@@ -27,7 +30,17 @@ function expectingFailure(message: string) {
   });
 }
 
-base("passes when the page stays quiet", async ({ page }) => {
+test("fails the test on a console error with the default wiring", async ({
+  page,
+}) => {
+  test.fail();
+  await page.goto("about:blank");
+  await page.evaluate(() => {
+    setTimeout(() => console.error("default wiring error"), 100);
+  });
+});
+
+test("passes when the page stays quiet", async ({ page }) => {
   await page.goto("about:blank");
   await page.evaluate(() => {
     setTimeout(() => console.log("late but harmless"), 100);
@@ -57,13 +70,13 @@ expectingFailure("late page error")(
   },
 );
 
-expectingFailure("error on an extra page")(
+expectingFailure("console error on an extra page")(
   "catches a console error on a page opened with context.newPage()",
   async ({ context }) => {
     const extra = await context.newPage();
     await extra.goto("about:blank");
     await extra.evaluate(() => {
-      setTimeout(() => console.error("error on an extra page"), 100);
+      setTimeout(() => console.error("console error on an extra page"), 100);
     });
   },
 );
@@ -81,7 +94,7 @@ expectingFailure("page error on an extra page")(
   },
 );
 
-base("passes when the test closes the page itself", async ({ page }) => {
+test("passes when the test closes the page itself", async ({ page }) => {
   await page.goto("about:blank");
   await page.close();
 });

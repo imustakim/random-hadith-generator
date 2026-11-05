@@ -47,7 +47,7 @@ export const test = base.extend<{
       await use(browserErrors);
 
       // A test may have closed every page; there is nothing left to wait for then.
-      if (context.pages().some((page) => !page.isClosed())) {
+      if (context.pages().length > 0) {
         await new Promise((resolve) => setTimeout(resolve, SETTLE_MS));
       }
       await browserErrorCheck(browserErrors);

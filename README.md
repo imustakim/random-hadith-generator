@@ -79,7 +79,7 @@ npm run test:e2e
 
 The suite builds and starts the app on port 3100. Outside CI it reuses a server already running there, so a server left over from another worktree's build can be tested by mistake. Set `E2E_PORT` to use a different port, for example `E2E_PORT=3101 npm run test:e2e`. An empty value means 3100; anything that is not a port number between 1 and 65535 stops the run with an error. The HTML report is written to `playwright-report`.
 
-Import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`. Its fixture fails any test that logs a console error or throws an uncaught page error, on any page of the test's browser context (including pages opened with `context.newPage()`), while the test runs or within 300 ms after it ends. An error that arrives later than that is not caught. `tests/e2e/fixtures.spec.ts` checks the fixture itself: each spec passes only if the fixture's final check rejects with the expected error message.
+Import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`. Its fixture fails any test that logs a console error or throws an uncaught page error, on any page of the test's browser context (including pages opened with `context.newPage()`), while the test runs or within 300 ms after it ends. An error that arrives later than that is not caught. `tests/e2e/fixtures.spec.ts` checks the fixture itself: each "catches" spec passes only if the fixture's final check rejects with the expected error message.
 
 ## License
 
