@@ -1,3 +1,6 @@
+import type { CookieMethodsServer } from "@supabase/ssr";
+import { RequestCookiesAdapter } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { RequestCookies } from "next/dist/server/web/spec-extension/cookies";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -8,10 +11,7 @@ const cookieStore = vi.hoisted(() => ({
 }));
 vi.mock("next/headers", () => ({ cookies: async () => cookieStore }));
 
-type CookieAdapter = {
-  getAll(): unknown;
-  setAll(cookies: { name: string; value: string; options?: object }[]): void;
-};
+type CookieAdapter = Required<CookieMethodsServer>;
 const adapters = vi.hoisted(() => [] as unknown[]);
 vi.mock("@supabase/ssr", () => ({
   createServerClient: (
@@ -32,10 +32,17 @@ async function cookieAdapter(): Promise<CookieAdapter> {
   return adapters.at(-1) as CookieAdapter;
 }
 
-const readOnlyError = () =>
-  new Error(
-    "Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options",
-  );
+/** The error Next itself throws when a Server Component writes a cookie. */
+function readOnlyError(): unknown {
+  try {
+    RequestCookiesAdapter.seal(new RequestCookies(new Headers())).set("a", "1");
+  } catch (error) {
+    return error;
+  }
+  throw new Error("Next's sealed cookie store did not throw on set");
+}
+
+const SET_ALL_HEADERS = {};
 
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321");
@@ -44,7 +51,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllEnvs();
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   adapters.length = 0;
 });
 
@@ -58,10 +65,13 @@ describe("createSupabaseServerClient cookie adapter", () => {
   it("writes each cookie with its options when the store is writable", async () => {
     const adapter = await cookieAdapter();
 
-    adapter.setAll([
-      { name: "a", value: "1", options: { path: "/" } },
-      { name: "b", value: "2", options: { httpOnly: true } },
-    ]);
+    await adapter.setAll(
+      [
+        { name: "a", value: "1", options: { path: "/" } },
+        { name: "b", value: "2", options: { httpOnly: true } },
+      ],
+      SET_ALL_HEADERS,
+    );
 
     expect(cookieStore.set).toHaveBeenCalledTimes(2);
     expect(cookieStore.set).toHaveBeenNthCalledWith(1, "a", "1", { path: "/" });
@@ -71,24 +81,25 @@ describe("createSupabaseServerClient cookie adapter", () => {
   });
 
   it("ignores the error a read-only cookie store throws (Server Components)", async () => {
-    cookieStore.set.mockImplementation(() => {
+    cookieStore.set.mockImplementationOnce(() => {
       throw readOnlyError();
     });
     const adapter = await cookieAdapter();
 
     expect(() =>
-      adapter.setAll([{ name: "a", value: "1", options: {} }]),
+      adapter.setAll([{ name: "a", value: "1", options: {} }], SET_ALL_HEADERS),
     ).not.toThrow();
+    expect(cookieStore.set).toHaveBeenCalledTimes(1);
   });
 
   it("rethrows any other error instead of swallowing it", async () => {
-    cookieStore.set.mockImplementation(() => {
+    cookieStore.set.mockImplementationOnce(() => {
       throw new Error("boom");
     });
     const adapter = await cookieAdapter();
 
     expect(() =>
-      adapter.setAll([{ name: "a", value: "1", options: {} }]),
+      adapter.setAll([{ name: "a", value: "1", options: {} }], SET_ALL_HEADERS),
     ).toThrow("boom");
   });
 });

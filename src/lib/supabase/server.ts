@@ -39,8 +39,9 @@ export async function createSupabaseServerClient() {
           }
         } catch (error) {
           // Server Components cannot write cookies, so Next throws. Ignore only
-          // that error. Until the authentication feature adds session-refresh
-          // middleware, a session refreshed here is not persisted.
+          // that error.
+          // TODO(authentication): add session-refresh middleware; until then a
+          // session refreshed here is not persisted.
           if (!isReadOnlyCookieError(error)) throw error;
         }
       },
