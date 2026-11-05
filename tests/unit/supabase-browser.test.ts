@@ -1,22 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ConfigError } from "@/lib/config/parse";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { configError } from "./helpers/config-error";
 
 afterEach(() => {
   vi.unstubAllEnvs();
 });
-
-/** Runs `fn` and returns the ConfigError it throws, failing if it does not. */
-function configError(fn: () => unknown): ConfigError {
-  try {
-    fn();
-  } catch (error) {
-    expect(error).toBeInstanceOf(ConfigError);
-    return error as ConfigError;
-  }
-  throw new Error("expected a ConfigError, but nothing was thrown");
-}
 
 describe("createSupabaseBrowserClient", () => {
   it("throws a ConfigError naming the URL when it is missing", () => {

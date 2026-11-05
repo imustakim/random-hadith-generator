@@ -1,24 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  ConfigError,
   parsePublicConfig,
   parseServerConfig,
   validateSetValues,
 } from "@/lib/config/parse";
+import { configError } from "./helpers/config-error";
 
 const JSDELIVR = "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1";
-
-/** Runs `fn` and returns the ConfigError it throws, failing if it does not. */
-function configError(fn: () => unknown): ConfigError {
-  try {
-    fn();
-  } catch (error) {
-    expect(error).toBeInstanceOf(ConfigError);
-    return error as ConfigError;
-  }
-  throw new Error("expected a ConfigError, but nothing was thrown");
-}
 
 describe("parseServerConfig", () => {
   it("defaults the Hadith API base URL to the jsDelivr endpoint", () => {
