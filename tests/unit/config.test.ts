@@ -139,6 +139,7 @@ describe("publishable key safety", () => {
 
   it.each([
     ["an sb_secret_ key", "sb_secret_s3cretvalue"],
+    ["an upper-case SB_SECRET_ key", "SB_SECRET_s3cretvalue"],
     ["a service-role JWT", jwt(SERVICE_ROLE_PAYLOAD)],
   ])("rejects %s without echoing it", (_label, key) => {
     const error = configError(() =>
@@ -166,7 +167,7 @@ describe("publishable key safety", () => {
     ).toBe(key);
   });
 
-  it("rejects a service-role key at startup validation too", () => {
+  it("rejects a secret key at startup validation too", () => {
     const error = configError(() =>
       validateSetValues({
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_secret_s3cretvalue",
@@ -190,6 +191,14 @@ describe("URL strictness", () => {
     "https://abc.supabase.test?key=s3cret",
     "https://abc.supabase.test#s3cret",
     "http://abc.supabase.test",
+    "https://abc.supabase.test/api?",
+    "https://abc.supabase.test/api#",
+    "https://@abc.supabase.test",
+    "https:@abc.supabase.test",
+    "https:/@abc.supabase.test",
+    "https:\\\\@abc.supabase.test",
+    "https:/\\@abc.supabase.test",
+    "https:///@abc.supabase.test",
   ])("rejects the Supabase URL %s without echoing it", (value) => {
     const error = configError(withSupabaseUrl(value));
     expect(error.message).toContain("NEXT_PUBLIC_SUPABASE_URL is malformed");
@@ -202,10 +211,19 @@ describe("URL strictness", () => {
     "https://hadith.test/api?token=s3cret",
     "https://hadith.test/api#s3cret",
     "http://hadith.test/api",
+    "https://hadith.test/api?",
+    "https://hadith.test/api#",
+    "https://@hadith.test/api",
+    "https:@hadith.test/api",
+    "https:/@hadith.test/api",
+    "https:\\\\@hadith.test/api",
+    "https:/\\@hadith.test/api",
+    "https:///@hadith.test/api",
   ])("rejects the Hadith API base URL %s", (value) => {
     const error = configError(withHadithUrl(value));
     expect(error.message).toContain("HADITH_API_BASE_URL is malformed");
     expect(error.message).not.toContain("s3cret");
+    expect(error.message).not.toContain(value);
   });
 
   it.each([
@@ -223,7 +241,8 @@ describe("URL strictness", () => {
   });
 
   it("does not treat a look-alike host as loopback", () => {
-    configError(withSupabaseUrl("http://localhost.evil.test"));
+    const error = configError(withSupabaseUrl("http://localhost.evil.test"));
+    expect(error.message).toContain("NEXT_PUBLIC_SUPABASE_URL is malformed");
   });
 });
 
