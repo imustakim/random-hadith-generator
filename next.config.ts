@@ -11,7 +11,7 @@ import { validateSetValues } from "./src/lib/config/parse";
  * `next build` would otherwise inline it before the startup check runs. A
  * missing value never fails the build (ADR 0004).
  */
-export default function nextConfig(phase: string): NextConfig {
+export default function createNextConfig(phase: string): NextConfig {
   if (phase === PHASE_PRODUCTION_BUILD) validateSetValues(process.env);
   return {};
 }

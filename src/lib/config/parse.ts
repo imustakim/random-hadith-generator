@@ -16,23 +16,33 @@ export class ConfigError extends Error {
 
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
-/** A scheme, `//`, then userinfo (even empty, as in `https://@host`) before the first `/`. */
-const HAS_USERINFO = /^[a-z][a-z0-9+.-]*:\/\/[^/]*@/i;
+/** True when `value` is `protocol//authority...` and the authority is non-empty with no userinfo. */
+function hasPlainAuthority(value: string, protocol: string): boolean {
+  const prefix = `${protocol}//`;
+  if (!value.toLowerCase().startsWith(prefix)) return false;
+  const authority = value.slice(prefix.length).split("/")[0];
+  return authority !== "" && !authority.includes("@");
+}
 
 /**
  * A base URL safe to use as configured: https (plain http only for loopback,
  * i.e. local Supabase or a local mock), with no credentials, query or fragment
  * that could leak into logs or break path joining. The raw string is checked
- * too, because `URL` reports a bare `?`, `#` or `@` as empty.
+ * too, because `URL` reports a bare `?`, `#` or `@` as empty. It must also
+ * spell the scheme as `scheme://` followed by a non-empty authority without
+ * `@`, and contain no backslash: `URL` accepts `https:@host`, `https:/@host`,
+ * `https:///@host` and `https:\\@host` for special schemes, hiding an empty
+ * userinfo.
  */
 const secureUrl = z
   .string()
   .trim()
   .refine((value) => {
-    if (/[?#]/.test(value) || HAS_USERINFO.test(value)) return false;
+    if (/[?#\\]/.test(value)) return false;
     try {
       const url = new URL(value);
-      if (url.username || url.password || url.search || url.hash) return false;
+      if (!hasPlainAuthority(value, url.protocol)) return false;
+      if (url.username || url.password) return false;
       return (
         url.protocol === "https:" ||
         (url.protocol === "http:" && LOOPBACK_HOSTS.has(url.hostname))
@@ -45,7 +55,7 @@ const secureUrl = z
 /** A secure URL used as a base for path joining: trailing slashes are removed. */
 const baseUrl = secureUrl.transform((value) => value.replace(/\/+$/, ""));
 
-const JwtPayload = z.object({ role: z.literal("service_role") });
+const serviceRolePayload = z.object({ role: z.literal("service_role") });
 
 /** True when the JWT payload (second segment) says `role: service_role`. */
 function isServiceRoleJwt(value: string): boolean {
@@ -54,7 +64,7 @@ function isServiceRoleJwt(value: string): boolean {
   try {
     const base64 = segments[1].replace(/-/g, "+").replace(/_/g, "/");
     const payload: unknown = JSON.parse(atob(base64));
-    return JwtPayload.safeParse(payload).success;
+    return serviceRolePayload.safeParse(payload).success;
   } catch {
     return false;
   }

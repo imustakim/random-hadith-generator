@@ -205,6 +205,11 @@ describe("URL strictness", () => {
     "https://abc.supabase.test/api?",
     "https://abc.supabase.test/api#",
     "https://@abc.supabase.test",
+    "https:@abc.supabase.test",
+    "https:/@abc.supabase.test",
+    "https:\\\\@abc.supabase.test",
+    "https:/\\@abc.supabase.test",
+    "https:///@abc.supabase.test",
   ])("rejects the Supabase URL %s without echoing it", (value) => {
     const error = configError(withSupabaseUrl(value));
     expect(error.message).toContain("NEXT_PUBLIC_SUPABASE_URL is malformed");
@@ -220,6 +225,11 @@ describe("URL strictness", () => {
     "https://hadith.test/api?",
     "https://hadith.test/api#",
     "https://@hadith.test/api",
+    "https:@hadith.test/api",
+    "https:/@hadith.test/api",
+    "https:\\\\@hadith.test/api",
+    "https:/\\@hadith.test/api",
+    "https:///@hadith.test/api",
   ])("rejects the Hadith API base URL %s", (value) => {
     const error = configError(withHadithUrl(value));
     expect(error.message).toContain("HADITH_API_BASE_URL is malformed");
